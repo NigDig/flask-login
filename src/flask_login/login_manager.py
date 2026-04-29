@@ -5,7 +5,7 @@ from datetime import timezone
 from flask import abort
 from flask import current_app
 from flask import flash
-from flask import g
+from flask.globals import request_ctx
 from flask import redirect
 from flask import request
 from flask import session
@@ -294,10 +294,7 @@ class LoginManager:
     def _update_request_context_with_user(self, user=None):
         """Store the given user as ctx.user."""
 
-        if user is None:
-            user = self.anonymous_user()
-
-        g._login_user = user
+        request_ctx.user = self.anonymous_user() if user is None else user
 
     def _load_user(self):
         """Loads user from session or remember_me cookie as applicable"""

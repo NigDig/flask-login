@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 from urllib.parse import urlunsplit
 
 from flask import current_app
-from flask import g
+from flask.globals import request_ctx
 from flask import has_request_context
 from flask import request
 from flask import session
@@ -358,14 +358,10 @@ def set_login_view(login_view, blueprint=None):
 
 
 def _get_user():
-    if has_request_context():
-        if "_login_user" not in g:
-            current_app.login_manager._load_user()
+    if has_request_context() and not hasattr(request_ctx, "user"):
+        current_app.login_manager._load_user()
 
-        return g._login_user
-
-    return None
-
+    return getattr(request_ctx, "user", None)
 
 def _cookie_digest(payload, key=None):
     key = _secret_key(key)
